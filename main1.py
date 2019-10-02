@@ -18,7 +18,7 @@ STARTING_LOCATION = (400,100)
 BULLET_DAMAGE = 10
 ENEMY_HP = 100
 HIT_SCORE = 10
-KILL_SCORE = 100
+KILL_SCORE = 110
 
 class Bullet(arcade.Sprite):
     def __init__(self, position, velocity, damage):
@@ -69,7 +69,7 @@ class Window(arcade.Window):
         os.chdir(file_path)
 
         self.set_mouse_visible(True)
-        arcade.set_background_color(open_color.blue_4)
+        arcade.set_background_color(open_color.green_6)
         self.bullet_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.player = Player()
@@ -88,6 +88,16 @@ class Window(arcade.Window):
     def update(self, delta_time):
         self.bullet_list.update()
         for e in self.enemy_list:
+            damage = arcade.check_for_collision_with_list(e, self.bullet_list)
+            for d in damage:
+                e.hp -= d.damage
+                d.kill()
+                if e.hp <= 0:
+                    self.score += KILL_SCORE
+                    e.kill()
+                else:
+                    self.score += HIT_SCORE
+                    
             # check for collision
             # for every bullet that hits, decrease the hp and then see if it dies
             # increase the score
@@ -110,6 +120,10 @@ class Window(arcade.Window):
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
+            x = self.player.center_x
+            y = self.player.center_y + 15
+            bullet = Bullet((x,y),(0,10),BULLET_DAMAGE)
+            self.bullet_list.append(bullet)
             #fire a bullet
             #the pass statement is a placeholder. Remove line 97 when you add your code
             pass
